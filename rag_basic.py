@@ -21,13 +21,12 @@ OVERLAP = 1                   # sentences repeated between neighbouring chunks
 TOP_K = 3                     # how many chunks to retrieve
 
 
-# ---------- Step 1: load the document ----------
+
 def load_document(path):
     with open(path, "r", encoding="utf-8") as f:
         return f.read()
 
 
-# ---------- Step 2: chunk it ----------
 def chunk_text(text, chunk_size=CHUNK_SIZE, overlap=OVERLAP):
     text = text.replace("\n", " ")
     # split into sentences at . ! ?
@@ -44,14 +43,13 @@ def chunk_text(text, chunk_size=CHUNK_SIZE, overlap=OVERLAP):
     return chunks
 
 
-# ---------- Step 3: embed the chunks ----------
 def embed_chunks(chunks, model):
     # normalize_embeddings=True makes every vector length 1,
     # so a simple dot product equals cosine similarity
     return model.encode(chunks, normalize_embeddings=True)
 
 
-# ---------- Step 4: retrieve top-k chunks ----------
+
 def retrieve(query, chunks, chunk_vectors, model, k=TOP_K):
     query_vector = model.encode([query], normalize_embeddings=True)[0]
     scores = chunk_vectors @ query_vector           # similarity of query to every chunk
@@ -59,7 +57,7 @@ def retrieve(query, chunks, chunk_vectors, model, k=TOP_K):
     return [(chunks[i], float(scores[i])) for i in top_indices]
 
 
-# ---------- Step 5: ask the LLM ----------
+
 def ask_llm(query, retrieved):
     context = "\n\n".join(chunk for chunk, _ in retrieved)
 
@@ -79,7 +77,7 @@ Answer:"""
     return response["message"]["content"]
 
 
-# ---------- Put it all together ----------
+
 def main():
     print("Loading document and building the index...")
     text = load_document(DOC_PATH)
