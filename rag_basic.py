@@ -12,13 +12,13 @@ import numpy as np
 import ollama
 from sentence_transformers import SentenceTransformer
 
-# ---------- Settings you can change ----------
-DOC_PATH = "faq.txt"          # the document to search
-LLM_MODEL = "llama3.2:latest"          # run `ollama list` and use a model name you have
+
+DOC_PATH = "faq.txt"          
+LLM_MODEL = "llama3.2:latest"         
 EMBED_MODEL = "all-MiniLM-L6-v2"
-CHUNK_SIZE = 3                # sentences per chunk
-OVERLAP = 1                   # sentences repeated between neighbouring chunks
-TOP_K = 3                     # how many chunks to retrieve
+CHUNK_SIZE = 3              
+OVERLAP = 1                  
+TOP_K = 3                    
 
 
 
@@ -29,7 +29,7 @@ def load_document(path):
 
 def chunk_text(text, chunk_size=CHUNK_SIZE, overlap=OVERLAP):
     text = text.replace("\n", " ")
-    # split into sentences at . ! ?
+   
     sentences = re.split(r"(?<=[.!?])\s+", text.strip())
 
     chunks = []
@@ -43,17 +43,15 @@ def chunk_text(text, chunk_size=CHUNK_SIZE, overlap=OVERLAP):
     return chunks
 
 
-def embed_chunks(chunks, model):
-    # normalize_embeddings=True makes every vector length 1,
-    # so a simple dot product equals cosine similarity
+def embed_chunks(chunks, model): 
     return model.encode(chunks, normalize_embeddings=True)
 
 
 
 def retrieve(query, chunks, chunk_vectors, model, k=TOP_K):
     query_vector = model.encode([query], normalize_embeddings=True)[0]
-    scores = chunk_vectors @ query_vector           # similarity of query to every chunk
-    top_indices = np.argsort(scores)[::-1][:k]      # highest scores first
+    scores = chunk_vectors @ query_vector           
+    top_indices = np.argsort(scores)[::-1][:k]     
     return [(chunks[i], float(scores[i])) for i in top_indices]
 
 
