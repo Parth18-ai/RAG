@@ -1,9 +1,6 @@
-# pip install chromadb
 import chromadb
 
-# ---------------------------------------------------------------
-# 1. Our 50 chunks: 5 source files x 10 chunks each
-# ---------------------------------------------------------------
+-
 DOCS = {
     "oracle_faq.txt": [
         "Oracle refunds are processed within 7 working days.",
@@ -67,19 +64,12 @@ DOCS = {
     ],
 }
 
-# ---------------------------------------------------------------
-# 2. Create the ChromaDB collection (the "smart library")
-# ---------------------------------------------------------------
 client = chromadb.PersistentClient(path="./chroma_db")  # saved on disk
 collection = client.get_or_create_collection(
     name="day16_chunks",
     metadata={"hnsw:space": "cosine"},  # use cosine, like in the numpy version
 )
 
-# ---------------------------------------------------------------
-# 3. Index: store text + sticky note (metadata) for each chunk
-#    Chroma creates the embeddings for us automatically.
-# ---------------------------------------------------------------
 ids, documents, metadatas = [], [], []
 for source_file, chunks in DOCS.items():
     for i, chunk in enumerate(chunks):
@@ -90,10 +80,6 @@ for source_file, chunks in DOCS.items():
 collection.upsert(ids=ids, documents=documents, metadatas=metadatas)
 print(f"Stored {collection.count()} chunks\n")
 
-
-# ---------------------------------------------------------------
-# 4. Search function (replaces the numpy one)
-# ---------------------------------------------------------------
 def search(query, top_k=3, source=None):
     """Semantic search. Optionally only look inside one source file."""
     where = {"source": source} if source else None
@@ -112,11 +98,6 @@ def search(query, top_k=3, source=None):
         print(f"  distance={dist:.3f} | {meta['source']} | {text}")
     print()
 
-
-# ---------------------------------------------------------------
-# 5. Try it
-# ---------------------------------------------------------------
-while True:
     question = input("Ask a question (or type 'quit'): ")
     if question.lower() == "quit":
         break
