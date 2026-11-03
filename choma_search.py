@@ -1,6 +1,5 @@
 import chromadb
 
--
 DOCS = {
     "oracle_faq.txt": [
         "Oracle refunds are processed within 7 working days.",
@@ -80,14 +79,16 @@ for source_file, chunks in DOCS.items():
 collection.upsert(ids=ids, documents=documents, metadatas=metadatas)
 print(f"Stored {collection.count()} chunks\n")
 
+
+
 def search(query, top_k=3, source=None):
     """Semantic search. Optionally only look inside one source file."""
     where = {"source": source} if source else None
 
     results = collection.query(
-        query_texts=[query],   # Chroma turns the question into coordinates
+        query_texts=[query],  
         n_results=top_k,
-        where=where,           # metadata filter (None = search everything)
+        where=where,           
     )
 
     label = f" [only in {source}]" if source else ""
@@ -98,6 +99,8 @@ def search(query, top_k=3, source=None):
         print(f"  distance={dist:.3f} | {meta['source']} | {text}")
     print()
 
+
+while True:
     question = input("Ask a question (or type 'quit'): ")
     if question.lower() == "quit":
         break
